@@ -516,7 +516,7 @@ const BACKUP_KEYS = [
   "daji-sound-guide",
   "daji-high-contrast",
   "daji-reduced-motion",
-  "daji-lang",
+  "daji-ui-lang",
 ]
 
 function downloadBackup() {
@@ -566,7 +566,8 @@ export default function App() {
   })
   const [lang, setLang] = useState<Lang>(() => {
     try {
-      return localStorage.getItem("daji-lang") === "ko" ? "ko" : "en"
+      localStorage.removeItem("daji-lang")
+      return localStorage.getItem("daji-ui-lang") === "ko" ? "ko" : "en"
     } catch {
       return "en"
     }
@@ -636,11 +637,6 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    try {
-      localStorage.setItem("daji-lang", lang)
-    } catch {
-      // localStorage unavailable — keep in-memory language only
-    }
     document.documentElement.lang = lang
     document.title =
       lang === "ko" ? "다지 — 시니어 디지털 연습" : "Dazi — Digital practice for seniors"
@@ -1524,7 +1520,17 @@ export default function App() {
           <button
             className="text-size-button"
             type="button"
-            onClick={() => setLang((value) => (value === "ko" ? "en" : "ko"))}
+            onClick={() =>
+              setLang((value) => {
+                const next = value === "ko" ? "en" : "ko"
+                try {
+                  localStorage.setItem("daji-ui-lang", next)
+                } catch {
+                  // 저장이 안 되어도 이번 화면의 언어는 바꾼다
+                }
+                return next
+              })
+            }
             aria-label={s.langSwitchAria}
           >
             {lang === "ko" ? "EN" : "KO"}
